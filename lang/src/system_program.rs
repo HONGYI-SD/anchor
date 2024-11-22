@@ -341,6 +341,29 @@ pub struct Mint<'info> {
     pub to: AccountInfo<'info>,
 }
 
+pub fn burn<'info>(
+    ctx: CpiContext<'_, '_, '_, 'info, Burn<'info>>,
+    lamports: u64,
+) -> Result<()> {
+    let ix = crate::solana_program::system_instruction::burn(
+        ctx.accounts.from.key,
+        ctx.accounts.to.key,
+        lamports,
+    );
+    crate::solana_program::program::invoke_signed(
+        &ix,
+        &[ctx.accounts.from, ctx.accounts.to],
+        ctx.signer_seeds,
+    )
+    .map_err(Into::into)
+}
+
+#[derive(Accounts)]
+pub struct Burn<'info> {
+    pub from: AccountInfo<'info>,
+    pub to: AccountInfo<'info>,
+}
+
 pub fn transfer_with_seed<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, TransferWithSeed<'info>>,
     from_seed: String,
